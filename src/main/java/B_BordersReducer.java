@@ -23,16 +23,15 @@ public class B_BordersReducer extends Reducer<Text, DoubleWritable, Text, Text> 
 
         Collections.sort(valuesList);
 
-        int i2 = medianIndex(valuesList.size());
-        int i1 = medianIndex(i2);
-        int i3 = medianIndex(valuesList.size() - i2) + i2;
-        Double b1 = valuesList.get(i1);
-        Double b2 = valuesList.get(i2);
-        Double b3 = valuesList.get(i3);
+        int size = valuesList.size();
+        int idx2 = medianIndex(size);
+        int idx1 = medianIndex(idx2);
+        int idx3 = medianIndex(size - idx2) + idx2;
 
         Configuration configuration = context.getConfiguration();
-        configuration.setDouble("b1", b1);
-        configuration.setDouble("b2", b2);
-        configuration.setDouble("b3", b3);
+        configuration.setDouble("border1", valuesList.get(idx1));
+        configuration.setDouble("border2", valuesList.get(idx2));
+        configuration.setDouble("border3", valuesList.get(idx3));
+        configuration.setDouble("maximum", valuesList.get(size - 1));
     }
 }

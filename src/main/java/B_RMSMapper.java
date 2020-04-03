@@ -5,7 +5,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import java.io.IOException;
 
 public class B_RMSMapper extends Mapper<Object, Text, Text, DoubleWritable> {
-    private final static Text k = new Text("1");
+    private final static Text one = new Text("1");
 
     private DoubleWritable rms = new DoubleWritable();
 
@@ -20,6 +20,6 @@ public class B_RMSMapper extends Mapper<Object, Text, Text, DoubleWritable> {
             return;
         }
 
-        context.write(k, rms);
+        context.write(one, rms);
     }
 }

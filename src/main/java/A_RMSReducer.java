@@ -5,7 +5,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 import java.io.IOException;
 
 public class A_RMSReducer extends Reducer<Text, DoubleWritable, Text, DoubleWritable> {
-    private DoubleWritable result = new DoubleWritable();
+    private DoubleWritable rms = new DoubleWritable();
 
     @Override
     public void reduce(Text key, Iterable<DoubleWritable> values, Context context) throws IOException, InterruptedException {
@@ -15,7 +15,7 @@ public class A_RMSReducer extends Reducer<Text, DoubleWritable, Text, DoubleWrit
             sum += Math.pow(v.get(), 2);
             len++;
         }
-        result.set(Math.sqrt(sum / len));
-        context.write(key, result);
+        rms.set(Math.sqrt(sum / len));
+        context.write(key, rms);
     }
 }

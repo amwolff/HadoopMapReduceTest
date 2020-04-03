@@ -1,12 +1,12 @@
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.ArrayPrimitiveWritable;
 import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.jobcontrol.JobControl;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.jobcontrol.ControlledJob;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
@@ -33,6 +33,10 @@ public final class VehiclesApp extends Configured {
         FileInputFormat.addInputPath(job1, in1);
         FileOutputFormat.setOutputPath(job1, out1);
 
+        if (!job1.waitForCompletion(true)) {
+            System.exit(1);
+        }
+
         Configuration conf2 = new Configuration();
 
         Job job2 = Job.getInstance(conf2, "B_VehicleApp");
@@ -50,28 +54,27 @@ public final class VehiclesApp extends Configured {
 
         job2.setNumReduceTasks(1);
 
+        if (!job2.waitForCompletion(true)) {
+            System.exit(1);
+        }
+
         Configuration conf3 = new Configuration(conf2);
 
         Job job3 = Job.getInstance(conf3, "C_VehicleApp");
+        job2.setJarByClass(C_BordersMapper.class);
+        job2.setMapperClass(C_BordersMapper.class);
+        job2.setCombinerClass(C_CountReducer.class);
+        job2.setReducerClass(C_CountReducer.class);
+        job2.setOutputKeyClass(IntWritable.class);
+        job2.setOutputValueClass(ArrayPrimitiveWritable.class);
 
+        Path out3 = new Path(remainingArgs[1], "out3");
 
-        ControlledJob controlledJob1 = new ControlledJob(job1.getConfiguration());
-        ControlledJob controlledJob2 = new ControlledJob(job2.getConfiguration());
-        controlledJob2.addDependingJob(controlledJob1);
+        FileInputFormat.addInputPath(job3, out1);
+        FileInputFormat.addInputPath(job3, out3);
 
-        JobControl ctrl = new JobControl("JobControl_VehicleApp");
-        ctrl.addJob(controlledJob1);
-        ctrl.addJob(controlledJob2);
+        job3.setNumReduceTasks(4);
 
-
-        Thread thread = new Thread(ctrl);
-        thread.start();
-
-        while (!ctrl.allFinished()) {
-            System.out.println("Still running...");
-            Thread.sleep(1000);
-        }
-
-        ctrl.stop();
+        System.exit(job3.waitForCompletion(true) ? 0 : 1);
     }
 }

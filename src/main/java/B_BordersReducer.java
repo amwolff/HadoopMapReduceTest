@@ -26,13 +26,13 @@ public class B_BordersReducer extends Reducer<Text, DoubleWritable, Text, Text> 
         int i2 = medianIndex(valuesList.size());
         int i1 = medianIndex(i2);
         int i3 = medianIndex(valuesList.size() - i2) + i2;
-        Double q1 = valuesList.get(i1);
-        Double q2 = valuesList.get(i2);
-        Double q3 = valuesList.get(i3);
+        Double b1 = valuesList.get(i1);
+        Double b2 = valuesList.get(i2);
+        Double b3 = valuesList.get(i3);
 
         Configuration configuration = context.getConfiguration();
-        configuration.setDouble("q1", q1);
-        configuration.setDouble("q2", q2);
-        configuration.setDouble("q3", q3);
+        configuration.setDouble("b1", b1);
+        configuration.setDouble("b2", b2);
+        configuration.setDouble("b3", b3);
     }
 }

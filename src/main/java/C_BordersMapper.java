@@ -14,7 +14,6 @@ public class C_BordersMapper extends Mapper<Object, Text, IntWritable, ArrayPrim
     private Writable[] tmpOut = new Writable[2];
     private ArrayPrimitiveWritable output = new ArrayPrimitiveWritable();
 
-
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
         Configuration configuration = context.getConfiguration();

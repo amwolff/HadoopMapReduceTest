@@ -44,6 +44,8 @@ public final class VehiclesApp extends Configured {
         job2.setMapperClass(B_RMSMapper.class);
         job2.setCombinerClass(B_BordersReducer.class);
         job2.setReducerClass(B_BordersReducer.class);
+        job2.setMapOutputKeyClass(Text.class);
+        job2.setMapOutputValueClass(DoubleWritable.class);
         job2.setOutputKeyClass(Text.class);
         job2.setOutputValueClass(Text.class);
 

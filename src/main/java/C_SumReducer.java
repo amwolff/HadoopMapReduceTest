@@ -12,10 +12,10 @@ import java.net.URI;
 public class C_SumReducer extends Reducer<IntWritable, IntWritable, IntWritable, Text> {
     private final static String outputFormat = "lower: %f upper: %f length: %d";
 
-    private Double border1;
-    private Double border2;
-    private Double border3;
-    private Double maximum;
+    private double border1;
+    private double border2;
+    private double border3;
+    private double maximum;
     private Text output = new Text();
 
     @Override

@@ -3,7 +3,7 @@ public class GreatUtils {
         return line.split("\\s+");
     }
 
-    public static Double parseBorder(String line) throws NumberFormatException {
+    public static double parseBorder(String line) throws NumberFormatException {
         return Double.parseDouble(splitByWhitespace(line)[1]);
     }
 }

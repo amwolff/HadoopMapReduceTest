@@ -1,57 +1,72 @@
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.*;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URI;
 
-public class C_BordersMapper extends Mapper<Object, Text, IntWritable, ArrayPrimitiveWritable> {
-    private Double border1;
-    private Double border2;
-    private Double border3;
+public class C_BordersMapper extends Mapper<Object, Text, IntWritable, DoubleWritable> {
+    private double border1;
+    private double border2;
+    private double border3;
     private IntWritable number = new IntWritable();
-    private Text tripID = new Text();
-    private DoubleWritable devRMS = new DoubleWritable();
-    private Writable[] tmpOut = new Writable[2];
-    private ArrayPrimitiveWritable output = new ArrayPrimitiveWritable();
+    private DoubleWritable rms = new DoubleWritable();
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
-        Configuration configuration = context.getConfiguration();
-        border1 = configuration.getDouble("border1", 0);
-        border2 = configuration.getDouble("border2", 0);
-        border3 = configuration.getDouble("border3", 0);
+        URI[] uris = context.getCacheFiles();
+        if (!(uris != null && uris.length > 0)) {
+            System.err.println("uris == null || uris.length == 0");
+            return;
+        }
+
+        Path path = null;
+        try {
+            path = new Path(uris[0].toString());
+        } catch (IllegalArgumentException e) {
+            System.err.println(e.getMessage());
+        }
+
+        BufferedReader reader =
+                new BufferedReader(new InputStreamReader(FileSystem.get(context.getConfiguration()).open(path)));
+        try {
+            border1 = Utils.parseBorder(reader.readLine());
+            border2 = Utils.parseBorder(reader.readLine());
+            border3 = Utils.parseBorder(reader.readLine());
+        } catch (IOException | NumberFormatException e) {
+            System.err.println(e.getMessage());
+        }
     }
 
     @Override
     public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
         String[] values = value.toString().split("\\s+");
 
-        tripID.set(values[0]);
-
-        double primitiveDevRMS;
+        double devRMS;
         try {
-            primitiveDevRMS = Double.parseDouble(values[1]);
+            devRMS = Double.parseDouble(values[1]);
         } catch (NumberFormatException e) {
             System.err.println(e.getMessage());
             return;
         }
 
-        if (primitiveDevRMS > border3) {
+        if (devRMS >= border3) {
             number.set(4);
-        } else if (primitiveDevRMS > border2) {
+        } else if (devRMS >= border2) {
             number.set(3);
-        } else if (primitiveDevRMS > border1) {
+        } else if (devRMS >= border1) {
             number.set(2);
         } else {
             number.set(1);
         }
 
-        devRMS.set(primitiveDevRMS);
+        rms.set(devRMS);
 
-        tmpOut[0] = tripID;
-        tmpOut[1] = devRMS;
-        output.set(tmpOut);
-
-        context.write(number, output);
+        context.write(number, rms);
     }
 }

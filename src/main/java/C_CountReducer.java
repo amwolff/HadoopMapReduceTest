@@ -1,58 +1,70 @@
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.ArrayPrimitiveWritable;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URI;
 
-public class C_CountReducer extends Reducer<IntWritable, ArrayPrimitiveWritable, IntWritable, ArrayPrimitiveWritable> {
-    private final static IntWritable zero = new IntWritable(0);
+public class C_CountReducer extends Reducer<IntWritable, DoubleWritable, IntWritable, Text> {
+    private final static String outputFormat = "lower: %f upper: %f length: %d";
 
-    private DoubleWritable border1 = new DoubleWritable();
-    private DoubleWritable border2 = new DoubleWritable();
-    private DoubleWritable border3 = new DoubleWritable();
-    private DoubleWritable maximum = new DoubleWritable();
-    private IntWritable count = new IntWritable();
-    private Writable[] tmpOut = new Writable[3];
-    private ArrayPrimitiveWritable output = new ArrayPrimitiveWritable();
+    private Double border1;
+    private Double border2;
+    private Double border3;
+    private Double maximum;
+    private Text output = new Text();
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
-        Configuration configuration = context.getConfiguration();
-        border1.set(configuration.getDouble("border1", 0));
-        border2.set(configuration.getDouble("border2", 0));
-        border3.set(configuration.getDouble("border3", 0));
-        maximum.set(configuration.getDouble("maximum", 0));
+        URI[] uris = context.getCacheFiles();
+        if (!(uris != null && uris.length > 0)) {
+            System.err.println("uris == null || uris.length == 0");
+            return;
+        }
+
+        Path path = null;
+        try {
+            path = new Path(uris[0].toString());
+        } catch (IllegalArgumentException e) {
+            System.err.println(e.getMessage());
+        }
+
+        BufferedReader reader =
+                new BufferedReader(new InputStreamReader(FileSystem.get(context.getConfiguration()).open(path)));
+        try {
+            border1 = Utils.parseBorder(reader.readLine());
+            border2 = Utils.parseBorder(reader.readLine());
+            border3 = Utils.parseBorder(reader.readLine());
+            maximum = Utils.parseBorder(reader.readLine());
+        } catch (IOException | NumberFormatException e) {
+            System.err.println(e.getMessage());
+        }
     }
 
     @Override
-    public void reduce(IntWritable key, Iterable<ArrayPrimitiveWritable> values, Context context) throws IOException, InterruptedException {
+    public void reduce(IntWritable key, Iterable<DoubleWritable> values, Context context) throws IOException,
+            InterruptedException {
+
         int len = 0;
-        for (ArrayPrimitiveWritable v : values) {
+        for (DoubleWritable v : values) {
             len++;
         }
-        count.set(len);
-
-        tmpOut[2] = count;
 
         int k = key.get();
         if (k == 1) {
-            tmpOut[0] = zero;
-            tmpOut[1] = border1;
+            output.set(String.format(outputFormat, 0., border1, len));
         } else if (k == 2) {
-            tmpOut[0] = border1;
-            tmpOut[1] = border2;
+            output.set(String.format(outputFormat, border1, border2, len));
         } else if (k == 3) {
-            tmpOut[0] = border2;
-            tmpOut[1] = border3;
+            output.set(String.format(outputFormat, border2, border3, len));
         } else if (k == 4) {
-            tmpOut[0] = border3;
-            tmpOut[1] = maximum;
+            output.set(String.format(outputFormat, border3, maximum, len));
         }
-
-        output.set(tmpOut);
 
         context.write(key, output);
     }

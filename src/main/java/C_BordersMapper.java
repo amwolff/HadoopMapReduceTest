@@ -1,6 +1,5 @@
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -10,12 +9,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 
-public class C_BordersMapper extends Mapper<Object, Text, IntWritable, DoubleWritable> {
+public class C_BordersMapper extends Mapper<Object, Text, IntWritable, IntWritable> {
+    private final static IntWritable one = new IntWritable(1);
+
     private double border1;
     private double border2;
     private double border3;
     private IntWritable number = new IntWritable();
-    private DoubleWritable rms = new DoubleWritable();
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
@@ -65,8 +65,6 @@ public class C_BordersMapper extends Mapper<Object, Text, IntWritable, DoubleWri
             number.set(1);
         }
 
-        rms.set(devRMS);
-
-        context.write(number, rms);
+        context.write(number, one);
     }
 }

@@ -1,6 +1,5 @@
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -10,7 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 
-public class C_CountReducer extends Reducer<IntWritable, DoubleWritable, IntWritable, Text> {
+public class C_SumReducer extends Reducer<IntWritable, IntWritable, IntWritable, Text> {
     private final static String outputFormat = "lower: %f upper: %f length: %d";
 
     private Double border1;
@@ -47,23 +46,23 @@ public class C_CountReducer extends Reducer<IntWritable, DoubleWritable, IntWrit
     }
 
     @Override
-    public void reduce(IntWritable key, Iterable<DoubleWritable> values, Context context) throws IOException,
+    public void reduce(IntWritable key, Iterable<IntWritable> values, Context context) throws IOException,
             InterruptedException {
 
-        int len = 0;
-        for (DoubleWritable v : values) {
-            len++;
+        int sum = 0;
+        for (IntWritable v : values) {
+            sum += v.get();
         }
 
         int k = key.get();
         if (k == 1) {
-            output.set(String.format(outputFormat, 0., border1, len));
+            output.set(String.format(outputFormat, 0., border1, sum));
         } else if (k == 2) {
-            output.set(String.format(outputFormat, border1, border2, len));
+            output.set(String.format(outputFormat, border1, border2, sum));
         } else if (k == 3) {
-            output.set(String.format(outputFormat, border2, border3, len));
+            output.set(String.format(outputFormat, border2, border3, sum));
         } else if (k == 4) {
-            output.set(String.format(outputFormat, border3, maximum, len));
+            output.set(String.format(outputFormat, border3, maximum, sum));
         }
 
         context.write(key, output);

@@ -62,10 +62,10 @@ public class VehiclesApp extends Configured {
         Job job3 = Job.getInstance(conf3, "C_VehiclesApp");
         job3.setJarByClass(C_BordersMapper.class);
         job3.setMapperClass(C_BordersMapper.class);
-        // job3.setCombinerClass(C_CountReducer.class);
-        job3.setReducerClass(C_CountReducer.class);
+        job3.setCombinerClass(C_SumCombiner.class);
+        job3.setReducerClass(C_SumReducer.class);
         job3.setMapOutputKeyClass(IntWritable.class);
-        job3.setMapOutputValueClass(DoubleWritable.class);
+        job3.setMapOutputValueClass(IntWritable.class);
         job3.setOutputKeyClass(IntWritable.class);
         job3.setOutputValueClass(Text.class);
 

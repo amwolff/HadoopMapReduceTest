@@ -11,7 +11,7 @@ public class B_RMSMapper extends Mapper<Object, Text, Text, DoubleWritable> {
 
     @Override
     public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-        String[] values = value.toString().split("\\s+");
+        String[] values = GreatUtils.splitByWhitespace(value.toString());
 
         try {
             rms.set(Double.parseDouble(values[1]));

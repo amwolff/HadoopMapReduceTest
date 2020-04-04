@@ -1,4 +1,4 @@
-public class Utils {
+public class GreatUtils {
     public static String[] splitByWhitespace(String line) {
         return line.split("\\s+");
     }

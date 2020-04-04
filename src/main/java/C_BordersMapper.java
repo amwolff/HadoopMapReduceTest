@@ -35,9 +35,9 @@ public class C_BordersMapper extends Mapper<Object, Text, IntWritable, DoubleWri
         BufferedReader reader =
                 new BufferedReader(new InputStreamReader(FileSystem.get(context.getConfiguration()).open(path)));
         try {
-            border1 = Utils.parseBorder(reader.readLine());
-            border2 = Utils.parseBorder(reader.readLine());
-            border3 = Utils.parseBorder(reader.readLine());
+            border1 = GreatUtils.parseBorder(reader.readLine());
+            border2 = GreatUtils.parseBorder(reader.readLine());
+            border3 = GreatUtils.parseBorder(reader.readLine());
         } catch (IOException | NumberFormatException e) {
             System.err.println(e.getMessage());
         }
@@ -45,7 +45,7 @@ public class C_BordersMapper extends Mapper<Object, Text, IntWritable, DoubleWri
 
     @Override
     public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-        String[] values = value.toString().split("\\s+");
+        String[] values = GreatUtils.splitByWhitespace(value.toString());
 
         double devRMS;
         try {

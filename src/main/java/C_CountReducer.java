@@ -37,10 +37,10 @@ public class C_CountReducer extends Reducer<IntWritable, DoubleWritable, IntWrit
         BufferedReader reader =
                 new BufferedReader(new InputStreamReader(FileSystem.get(context.getConfiguration()).open(path)));
         try {
-            border1 = Utils.parseBorder(reader.readLine());
-            border2 = Utils.parseBorder(reader.readLine());
-            border3 = Utils.parseBorder(reader.readLine());
-            maximum = Utils.parseBorder(reader.readLine());
+            border1 = GreatUtils.parseBorder(reader.readLine());
+            border2 = GreatUtils.parseBorder(reader.readLine());
+            border3 = GreatUtils.parseBorder(reader.readLine());
+            maximum = GreatUtils.parseBorder(reader.readLine());
         } catch (IOException | NumberFormatException e) {
             System.err.println(e.getMessage());
         }
